@@ -19,8 +19,8 @@ const { DB_HOST = 'mysql_db', DB_PORT = 3306 } = process.env ?? {
 
 const waitOptions = {
   resources: [`tcp:${DB_HOST}:${DB_PORT}`], // Aguarda a porta do banco
-  timeout: 30000, // 30 segundos
-  interval: 1000, // Checa a cada 1 segundo
+  timeout: 300000, // 5 minutos
+  interval: 3000, // Checa a cada 3 segundo
   tcpTimeout: 1000, // Timeout por conexão
   log: true, // Logs no terminal
 };

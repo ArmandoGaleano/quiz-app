@@ -1,9 +1,7 @@
 import mysql from 'mysql2/promise';
 
-console.log();
-
 export const checkMySQLReady = async () => {
-  const maxAttempts = 10; // Número máximo de tentativas
+  const maxAttempts = 100; // Número máximo de tentativas
   const interval = 3000; // Intervalo entre as tentativas (em ms)
   let attempt = 0;
 

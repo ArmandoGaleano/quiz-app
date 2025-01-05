@@ -15,7 +15,8 @@
     "generate-cert": "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout docker/certs/key.pem -out docker/certs/cert.pem -subj \"/C=BR/ST=Sao Paulo/L=Sao Paulo/O=Quiz/OU=Desenvolvimento/CN=localhost\"",
     "prepare": "husky",
     "eslint:lint": "npx eslint . --fix",
-    "prettier:lint": "npx prettier --write './src/**/*.{js,jsx,ts,tsx}'"
+    "prettier:lint": "npx prettier --write './src/**/*.{js,jsx,ts,tsx}'",
+    "initEnv": "node ./setup/initializeEnv.js"
   },
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"

@@ -66,7 +66,7 @@ services:
           memory: 256M # Reserva 256 MB de memória
 
   certbot:
-    image: certbot/certbot:1.7.0
+    image: certbot/certbot:latest
     container_name: certbot_prod
     restart: always
     volumes:
