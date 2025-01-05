@@ -1,0 +1,17 @@
+# Use a imagem base do Node.js
+FROM node:20.18.0
+
+# Criação do diretório de trabalho
+WORKDIR /quiz-app
+
+# Copia os arquivos da aplicação
+COPY . .
+
+# Instala as dependências
+RUN npm install
+
+# Define a variável de ambiente NODE_ENV como development
+ENV NODE_ENV=development
+
+# Executa o Node.js com o script especificado
+ENTRYPOINT ["sh", "-c", "node ./setup/index.js"]

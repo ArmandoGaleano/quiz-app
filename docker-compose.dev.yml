@@ -1,0 +1,112 @@
+name: quiz-app
+
+services:
+  mysql_db:
+    image: mysql:8.0
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - '3306:3306'
+    networks:
+      - backend_network
+
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5' # Máximo de 50% de 1 CPU
+          memory: 256M # Limita o uso de memória a 256 MB
+        reservations:
+          cpus: '0.25' # Garante 25% de uma CPU
+          memory: 128M # Reserva 128 MB de memória
+
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  node_app:
+    container_name: node_app
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    env_file:
+      - .env
+
+    stdin_open: true # Permite que terminal seja interativo
+    tty: true # Mantém o terminal aberto para inputs
+
+    volumes:
+      - ./src:/quiz-app/src
+
+    expose:
+      - '3000'
+    networks:
+      - backend_network
+
+    depends_on:
+      - mysql_db
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.75' # Máximo de 75% de 1 CPU
+          memory: 512M # Limita o uso de memória a 512 MB
+        reservations:
+          cpus: '0.5' # Reserva 50% de 1 CPU
+          memory: 256M # Reserva 256 MB de memória
+
+  nginx:
+    image: nginx:1.27.3
+    container_name: nginx
+    volumes:
+      - ./docker/nginx/nginx.dev.conf:/etc/nginx/conf.d/nginx.dev.conf # Configuração do NGINX
+      - ./docker/certs:/etc/nginx/certs # Certificados SSL
+    ports:
+      - '443:443' # HTTPS
+      - '80:80' # HTTP para redirecionamento
+    depends_on:
+      - mysql_db
+      - node_app
+    networks:
+      - frontend_network
+      - backend_network
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5' # Máximo de 50% de 1 CPU
+          memory: 256M # Limita o uso de memória a 256 MB
+        reservations:
+          cpus: '0.25' # Reserva 25% de 1 CPU
+          memory: 128M # Reserva 128 MB de memória
+
+networks:
+  frontend_network:
+    driver: bridge
+  backend_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local # Definição do volume mysql_data

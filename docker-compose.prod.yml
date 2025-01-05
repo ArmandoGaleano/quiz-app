@@ -1,0 +1,140 @@
+name: quiz-app
+
+services:
+  mysql_db:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+    expose:
+      - '3306'
+    networks:
+      - backend_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5' # Máximo de 50% de 1 CPU
+          memory: 256M # Limita o uso de memória a 256 MB
+        reservations:
+          cpus: '0.25' # Garante 25% de uma CPU
+          memory: 128M # Reserva 128 MB de memória
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  node_app:
+    container_name: node_app
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    env_file:
+      - .env
+    expose:
+      - '3000'
+    networks:
+      - backend_network
+    depends_on:
+      - mysql_db
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.75' # Máximo de 75% de 1 CPU
+          memory: 512M # Limita o uso de memória a 512 MB
+        reservations:
+          cpus: '0.5' # Reserva 50% de 1 CPU
+          memory: 256M # Reserva 256 MB de memória
+
+  certbot:
+    image: certbot/certbot:1.7.0
+    container_name: certbot_prod
+    restart: always
+    volumes:
+      - ./docker/certs:/etc/letsencrypt # Volume compartilhado com NGINX para certificados
+      - ./docker/certbot-etc:/var/lib/letsencrypt
+    entrypoint: /bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done'
+    command:
+      - certonly
+      - --webroot
+      - --webroot-path=/var/www/certbot
+      - --email armandogaleanodev@gmail.com
+      - --agree-tos
+      - --no-eff-email
+      - -d vps56453.publiccloud.com.br
+    networks:
+      - frontend_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25' # Máximo de 25% de 1 CPU
+          memory: 128M # Limita o uso de memória a 128 MB
+        reservations:
+          cpus: '0.1' # Reserva 10% de 1 CPU
+          memory: 64M # Reserva 64 MB de memória
+
+  nginx:
+    image: nginx:1.27.3
+    container_name: nginx
+    restart: always
+    volumes:
+      - ./docker/nginx/nginx.prod.conf:/etc/nginx/conf.d/nginx.conf # Configuração específica para produção
+      - ./docker/certs:/etc/letsencrypt:ro # Volume para certificados gerados pelo Certbot
+      - ./docker/certbot-etc:/var/www/certbot # Volume para certbot
+      - ./docker/dhparam.pem:/etc/nginx/dhparam.pem:ro # Parâmetros de segurança - Diffie-Hellman -
+    ports:
+      - '443:443' # HTTPS
+      - '80:80' # HTTP necessário para o desafio HTTP do Let's Encrypt
+    depends_on:
+      - node_app
+      - certbot
+    networks:
+      - frontend_network
+      - backend_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5' # Máximo de 50% de 1 CPU
+          memory: 256M # Limita o uso de memória a 256 MB
+        reservations:
+          cpus: '0.25' # Reserva 25% de 1 CPU
+          memory: 128M # Reserva 128 MB de memória
+
+networks:
+  frontend_network:
+    driver: bridge
+  backend_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local # Definição do volume mysql_data

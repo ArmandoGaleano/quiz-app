@@ -1,0 +1,11 @@
+model Alternative {
+  id         String   @id @default(uuid())
+  questionId String
+  text       String
+  isCorrect  Boolean
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  question   Question @relation(fields: [questionId], references: [id])
+
+  @@index([questionId], map: "Alternative_questionId_fkey")
+}

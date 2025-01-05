@@ -1,0 +1,5 @@
+.env
+node_modules
+docker/certs/*
+docker/nginx/nginx.prod.conf
+docker/dhparam.pem

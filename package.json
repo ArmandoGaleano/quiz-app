@@ -1,0 +1,63 @@
+{
+  "name": "node-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node ./setup/initializeEnv.js && npm run generate-cert && docker-compose -f docker-compose.dev.yml up --build",
+    "start": "npm run clear-certs && docker-compose -f docker-compose.prod.yml up --build",
+    "build": "node ./setup/initializeEnv.js && npm run clear-certs && npx webpack --config webpack.config.js",
+    "prisma:migrate-check": "npx prisma migrate status --schema=./prisma/schema --experimental",
+    "prisma:migrate": "npx prisma migrate dev --name 'auto_migration' --skip-generate",
+    "prisma:generate": "npx prisma generate",
+    "clear-certs": "rm -rf docker/certs/*",
+    "generate-cert": "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout docker/certs/key.pem -out docker/certs/cert.pem -subj \"/C=BR/ST=Sao Paulo/L=Sao Paulo/O=Quiz/OU=Desenvolvimento/CN=localhost\"",
+    "prepare": "husky",
+    "eslint:lint": "npx eslint . --fix",
+    "prettier:lint": "npx prettier --write './src/**/*.{js,jsx,ts,tsx}'"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "prisma": {
+    "schema": "./prisma/schema"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "@typescript-eslint/eslint-plugin": "^8.8.0",
+    "@typescript-eslint/parser": "^8.8.0",
+    "eslint": "8.57.1",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.3.3",
+    "ts-loader": "^9.5.1",
+    "tsx": "^4.19.1",
+    "typescript": "5.5.4",
+    "wait-port": "^1.1.0",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-node-externals": "^3.0.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.1.0",
+    "dotenv": "^16.4.5",
+    "execa": "^9.5.2",
+    "fastify": "^5.0.0",
+    "inquirer": "^12.3.0",
+    "listr": "^0.14.3",
+    "mysql2": "^3.12.0",
+    "nodemon": "^3.1.7",
+    "prisma": "^6.1.0",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7",
+    "wait-on": "^8.0.1",
+    "zod": "^3.23.8"
+  },
+  "engines": {
+    "node": "^20.18.0"
+  }
+}

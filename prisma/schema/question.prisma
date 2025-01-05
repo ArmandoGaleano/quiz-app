@@ -1,0 +1,13 @@
+model Question {
+  id                String        @id @default(uuid())
+  slug              String        @unique
+  title             String
+  shortDescription  String
+  questionStatement String
+  active            Boolean       @default(false)
+  type              String
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  alternatives      Alternative[]
+  keywords          Keyword[]     @relation("QuestionKeywords")
+}

@@ -1,0 +1,3 @@
+# Ignorar dependências e módulos de terceiros
+node_modules/
+prisma/
