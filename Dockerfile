@@ -10,7 +10,7 @@ COPY ./package-lock.json ./package-lock.json
 COPY ./.env ./.env
 
 # Instalar dependências de produção
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Criação de um usuário não-root
 RUN useradd -m nodeuser
