@@ -1,140 +1,145 @@
 name: quiz-app
 
 services:
+  # Serviço do MySQL
   mysql_db:
     image: mysql:8.0
     container_name: mysql_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD} # Senha do root do MySQL definida no .env
+      MYSQL_DATABASE: ${DB_NAME} # Nome do banco de dados inicial
+      MYSQL_USER: ${DB_USER} # Usuário que será criado no banco
+      MYSQL_PASSWORD: ${DB_PASSWORD} # Senha para o usuário acima
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql # Volume persistente para os dados do MySQL
     expose:
-      - '3306'
+      - '3306' # Porta padrão do MySQL exposta para a rede interna
     networks:
-      - backend_network
+      - backend_network # Rede interna compartilhada com outros serviços
     logging:
-      driver: "json-file"
+      driver: "json-file" # Configuração de logs para limitar o uso de espaço
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: "10m" # Limite de tamanho para cada arquivo de log
+        max-file: "3" # Máximo de 3 arquivos de log
     deploy:
-      resources:
+      resources: # Limites e reservas de CPU e memória para o container
         limits:
-          cpus: '0.5' # Máximo de 50% de 1 CPU
-          memory: 256M # Limita o uso de memória a 256 MB
+          cpus: '0.5'
+          memory: 256M
         reservations:
-          cpus: '0.25' # Garante 25% de uma CPU
-          memory: 128M # Reserva 128 MB de memória
-    healthcheck:
+          cpus: '0.25'
+          memory: 128M
+    healthcheck: # Verifica se o banco está disponível
       test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
       interval: 30s
       timeout: 10s
       retries: 3
 
+  # Serviço do Aplicativo Node.js
   node_app:
     container_name: node_app
     restart: always
     build:
-      context: .
+      context: . # Usa o Dockerfile no diretório atual
       dockerfile: Dockerfile
-
     env_file:
-      - .env
+      - .env # Carrega variáveis de ambiente do arquivo .env
     expose:
-      - '3000'
+      - '3000' # Porta do aplicativo exposta para a rede interna
     networks:
-      - backend_network
+      - backend_network # Rede compartilhada com o banco
     depends_on:
-      - mysql_db
+      - mysql_db # Garante que o banco estará disponível antes de iniciar
     logging:
-      driver: "json-file"
+      driver: "json-file" # Configuração de logs
       options:
         max-size: "10m"
         max-file: "3"
     deploy:
-      resources:
+      resources: # Limites e reservas de CPU e memória
         limits:
-          cpus: '0.75' # Máximo de 75% de 1 CPU
-          memory: 512M # Limita o uso de memória a 512 MB
+          cpus: '0.75'
+          memory: 512M
         reservations:
-          cpus: '0.5' # Reserva 50% de 1 CPU
-          memory: 256M # Reserva 256 MB de memória
+          cpus: '0.5'
+          memory: 256M
 
+  # Serviço do Certbot para Certificados SSL
   certbot:
     image: certbot/certbot:latest
     container_name: certbot_prod
-    restart: always
+    restart: unless-stopped # Reinicia o container, exceto se for parado manualmente
     volumes:
-      - ./docker/certs:/etc/letsencrypt # Volume compartilhado com NGINX para certificados
-      - ./docker/certbot-etc:/var/lib/letsencrypt
-    entrypoint: /bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done'
+      - ./docker/certs:/etc/letsencrypt # Volume compartilhado com o NGINX para certificados
+      - ./docker/certbot-etc:/var/lib/letsencrypt # Dados internos do Certbot
+      - ./docker/nginx:/var/www/certbot # Webroot para o desafio HTTP do Let's Encrypt
+    entrypoint: /bin/sh -c 'trap exit TERM; while :; do sleep 12h & wait $${!}; done'
     command:
-      - certonly
-      - --webroot
-      - --webroot-path=/var/www/certbot
-      - --email armandogaleanodev@gmail.com
-      - --agree-tos
-      - --no-eff-email
-      - -d vps56453.publiccloud.com.br
+      - certonly # Modo apenas para gerar certificados
+      - --webroot # Usa o método webroot para validação
+      - --webroot-path=/var/www/certbot # Caminho usado para validação
+      - --email armandogaleanodev@gmail.com # Email para notificações do Let's Encrypt
+      - --agree-tos # Aceita os termos de serviço
+      - --no-eff-email # Não se inscreve na lista de emails da EFF
+      - -d vps56453.publiccloud.com.br # Domínio para o qual será gerado o certificado
     networks:
-      - frontend_network
+      - frontend_network # Rede compartilhada com o NGINX
     logging:
-      driver: "json-file"
+      driver: "json-file" # Configuração de logs
       options:
         max-size: "10m"
         max-file: "3"
     deploy:
-      resources:
+      resources: # Limites e reservas de CPU e memória
         limits:
-          cpus: '0.25' # Máximo de 25% de 1 CPU
-          memory: 128M # Limita o uso de memória a 128 MB
+          cpus: '0.25'
+          memory: 128M
         reservations:
-          cpus: '0.1' # Reserva 10% de 1 CPU
-          memory: 64M # Reserva 64 MB de memória
+          cpus: '0.1'
+          memory: 64M
 
+  # Serviço do NGINX
   nginx:
     image: nginx:1.27.3
     container_name: nginx
     restart: always
     volumes:
-      - ./docker/nginx/nginx.prod.conf:/etc/nginx/conf.d/nginx.conf # Configuração específica para produção
-      - ./docker/certs:/etc/letsencrypt:ro # Volume para certificados gerados pelo Certbot
-      - ./docker/certbot-etc:/var/www/certbot # Volume para certbot
-      - ./docker/dhparam.pem:/etc/nginx/dhparam.pem:ro # Parâmetros de segurança - Diffie-Hellman -
+      - ./docker/nginx/nginx.prod.conf:/etc/nginx/conf.d/default.conf # Arquivo de configuração do NGINX
+      - ./docker/certs:/etc/letsencrypt:ro # Certificados gerados pelo Certbot
+      - ./docker/certbot-etc:/var/www/certbot # Diretório para validação do Certbot
+      - ./docker/dhparam.pem:/etc/nginx/dhparam.pem:ro # Parâmetros Diffie-Hellman para segurança extra
     ports:
-      - '443:443' # HTTPS
-      - '80:80' # HTTP necessário para o desafio HTTP do Let's Encrypt
+      - '443:443' # Porta HTTPS
+      - '80:80' # Porta HTTP necessária para validação do Let's Encrypt
     depends_on:
-      - node_app
-      - certbot
+      - node_app # Garante que o Node.js estará disponível antes do NGINX iniciar
+      - certbot # Garante que os certificados do Certbot estarão disponíveis
     networks:
-      - frontend_network
-      - backend_network
+      - frontend_network # Rede compartilhada com o Certbot
+      - backend_network # Rede compartilhada com o Node.js
     logging:
-      driver: "json-file"
+      driver: "json-file" # Configuração de logs
       options:
         max-size: "10m"
         max-file: "3"
     deploy:
-      resources:
+      resources: # Limites e reservas de CPU e memória
         limits:
-          cpus: '0.5' # Máximo de 50% de 1 CPU
-          memory: 256M # Limita o uso de memória a 256 MB
+          cpus: '0.5'
+          memory: 256M
         reservations:
-          cpus: '0.25' # Reserva 25% de 1 CPU
-          memory: 128M # Reserva 128 MB de memória
+          cpus: '0.25'
+          memory: 128M
 
+# Configuração das Redes
 networks:
   frontend_network:
-    driver: bridge
+    driver: bridge # Rede para comunicação entre o NGINX e o Certbot
   backend_network:
-    driver: bridge
+    driver: bridge # Rede para comunicação entre o Node.js e o MySQL
 
+# Configuração dos Volumes
 volumes:
   mysql_data:
-    driver: local # Definição do volume mysql_data
+    driver: local # Volume persistente para os dados do MySQL
