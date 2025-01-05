@@ -2,9 +2,10 @@ FROM node:20.18.0
 
 WORKDIR /quiz-app
 
+COPY ./build ./build
 COPY ./docker ./docker
 COPY ./prisma ./prisma
-COPY ./build ./build
+COPY ./setup ./setup
 COPY ./package.json ./package.json
 COPY ./package-lock.json ./package-lock.json
 COPY ./.env ./.env
