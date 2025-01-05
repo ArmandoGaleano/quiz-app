@@ -6,6 +6,7 @@ COPY ./docker ./docker
 COPY ./prisma ./prisma
 COPY ./build ./build
 COPY ./package.json ./package.json
+COPY ./package-lock.json ./package-lock.json
 COPY ./.env ./.env
 
 # Instalar dependências de produção
