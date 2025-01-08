@@ -82,7 +82,7 @@ services:
       - --email armandogaleanodev@gmail.com # Email para notificações do Let's Encrypt
       - --agree-tos # Aceita os termos de serviço
       - --no-eff-email # Não se inscreve na lista de emails da EFF
-      - -d vps56453.publiccloud.com.br # Domínio para o qual será gerado o certificado
+      - -d armandosandbox.tech # Domínio para o qual será gerado o certificado
     networks:
       - frontend_network # Rede compartilhada com o NGINX
     logging:
