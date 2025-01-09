@@ -77,7 +77,7 @@ services:
     container_name: nginx
     volumes:
       - ./docker/nginx/nginx.dev.conf:/etc/nginx/conf.d/nginx.dev.conf # Configuração do NGINX
-      - ./docker/certs:/etc/nginx/certs # Certificados SSL
+      - ./docker/nginx/certs:/etc/nginx/certs # Certificados SSL
     ports:
       - '443:443' # HTTPS
       - '80:80' # HTTP para redirecionamento

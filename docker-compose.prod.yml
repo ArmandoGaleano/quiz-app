@@ -18,10 +18,10 @@ services:
     networks:
       - backend_network # Rede interna compartilhada com outros serviços
     logging:
-      driver: "json-file" # Configuração de logs para limitar o uso de espaço
+      driver: 'json-file' # Configuração de logs para limitar o uso de espaço
       options:
-        max-size: "10m" # Limite de tamanho para cada arquivo de log
-        max-file: "3" # Máximo de 3 arquivos de log
+        max-size: '10m' # Limite de tamanho para cada arquivo de log
+        max-file: '3' # Máximo de 3 arquivos de log
     deploy:
       resources: # Limites e reservas de CPU e memória para o container
         limits:
@@ -52,10 +52,10 @@ services:
     depends_on:
       - mysql_db # Garante que o banco estará disponível antes de iniciar
     logging:
-      driver: "json-file" # Configuração de logs
+      driver: 'json-file' # Configuração de logs
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
     deploy:
       resources: # Limites e reservas de CPU e memória
         limits:
@@ -74,7 +74,15 @@ services:
       - ./docker/certs:/etc/letsencrypt # Volume compartilhado com o NGINX para certificados
       - ./docker/certbot-etc:/var/lib/letsencrypt # Dados internos do Certbot
       - ./docker/nginx:/var/www/certbot # Webroot para o desafio HTTP do Let's Encrypt
-    entrypoint: /bin/sh -c 'trap exit TERM; while :; do sleep 12h & wait $${!}; done'
+    entrypoint: >
+      sh -c "
+      echo '=== Gerando certificados iniciais ===' &&
+      certbot certonly --webroot -w /var/www/certbot -d armandosandbox.tech --email armandogaleanodev@gmail.com --agree-tos --no-eff-email || exit 1 &&
+      echo '=== Configurando cron para renovação automática ===' &&
+      echo '0 */12 * * * certbot renew --webroot -w /var/www/certbot && nginx -s reload' > /etc/crontabs/root &&
+      echo '=== Iniciando o cron ===' &&
+      crond -f
+      "
     command:
       - certonly # Modo apenas para gerar certificados
       - --webroot # Usa o método webroot para validação
@@ -86,10 +94,10 @@ services:
     networks:
       - frontend_network # Rede compartilhada com o NGINX
     logging:
-      driver: "json-file" # Configuração de logs
+      driver: 'json-file' # Configuração de logs
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
     deploy:
       resources: # Limites e reservas de CPU e memória
         limits:
@@ -118,10 +126,10 @@ services:
       - frontend_network # Rede compartilhada com o Certbot
       - backend_network # Rede compartilhada com o Node.js
     logging:
-      driver: "json-file" # Configuração de logs
+      driver: 'json-file' # Configuração de logs
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
     deploy:
       resources: # Limites e reservas de CPU e memória
         limits:
