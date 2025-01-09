@@ -11,7 +11,7 @@
     "prisma:migrate-check": "npx prisma migrate status --schema=./prisma/schema --experimental",
     "prisma:migrate": "npx prisma migrate dev --name 'auto_migration' --skip-generate",
     "prisma:generate": "npx prisma generate",
-    "generate-cert": "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout docker/nginx/certs/key.pem -out docker/nginx/certs/cert.pem -subj \"/C=BR/ST=Sao Paulo/L=Sao Paulo/O=Quiz/OU=Desenvolvimento/CN=localhost\"",
+    "generate-cert": "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout docker/certs/key.pem -out docker/certs/cert.pem -subj \"/C=BR/ST=Sao Paulo/L=Sao Paulo/O=Quiz/OU=Desenvolvimento/CN=localhost\"",
     "prepare": "[ \"$NODE_ENV\" != \"production\" ] && husky install || exit 0",
     "eslint:lint": "npx eslint . --fix",
     "prettier:lint": "npx prettier --write './src/**/*.{js,jsx,ts,tsx}'",
