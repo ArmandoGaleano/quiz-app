@@ -114,7 +114,6 @@ services:
       - '80:80' # Porta HTTP necessária para validação do Let's Encrypt
     depends_on:
       - node_app # Garante que o Node.js estará disponível antes do NGINX iniciar
-      - certbot # Garante que os certificados do Certbot estarão disponíveis
     networks:
       - frontend_network # Rede compartilhada com o Certbot
       - backend_network # Rede compartilhada com o Node.js
