@@ -26,10 +26,10 @@ services:
       resources: # Limites e reservas de CPU e memória para o container
         limits:
           cpus: '0.5'
-          memory: 256M
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     healthcheck: # Verifica se o banco está disponível
       test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
       interval: 30s
