@@ -17,7 +17,7 @@ RUN npm ci --omit=dev
 RUN useradd -m nodeuser
 
 # Define as permissões adequadas para o diretório de trabalho
-RUN chown -R nodeuser:nodeuser /build
+RUN chown -R nodeuser:nodeuser /quiz-app/build
 
 # Muda para o usuário não-root
 USER nodeuser
