@@ -10,6 +10,9 @@ COPY ./package.json ./package.json
 COPY ./package-lock.json ./package-lock.json
 COPY ./.env ./.env
 
+# Instalar cron
+RUN apt-get update && apt-get install -y cron
+
 # Criar arquivo de log para cron
 RUN touch /var/log/cron.log
 
