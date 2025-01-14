@@ -5,17 +5,18 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "node ./setup/initializeEnv.js && npm run generate-cert && docker-compose -f docker-compose.dev.yml up --build",
-    "start": "docker-compose -f docker-compose.prod.yml up --build",
+    "dev": "node ./setup/initializeEnv.js && npm run generate-cert:dev && docker compose -f docker-compose.dev.yml up --build",
+    "start": "docker compose -f docker-compose.prod.yml up --build",
     "build": "node ./setup/initializeEnv.js && npx webpack --config webpack.config.js",
+    "initEnv": "node ./setup/initializeEnv.js",
+    "generate-cert:dev": "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout docker/certs/key.pem -out docker/certs/cert.pem -subj \"/C=BR/ST=Sao Paulo/L=Sao Paulo/O=Quiz/OU=Desenvolvimento/CN=localhost\"",
+    "generate-cert:prod": "env $(cat .env | xargs) openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout docker/certs/key.pem -out docker/certs/cert.pem -subj \"/C=BR/ST=Sao Paulo/L=Sao Paulo/O=Quiz/OU=Producao/CN=$SERVER_HOST\"",
     "prisma:migrate-check": "npx prisma migrate status --schema=./prisma/schema --experimental",
     "prisma:migrate": "npx prisma migrate dev --name 'auto_migration' --skip-generate",
     "prisma:generate": "npx prisma generate",
-    "generate-cert": "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout docker/certs/key.pem -out docker/certs/cert.pem -subj \"/C=BR/ST=Sao Paulo/L=Sao Paulo/O=Quiz/OU=Desenvolvimento/CN=localhost\"",
-    "prepare": "[ \"$NODE_ENV\" != \"production\" ] && husky install || exit 0",
     "eslint:lint": "npx eslint . --fix",
     "prettier:lint": "npx prettier --write './src/**/*.{js,jsx,ts,tsx}'",
-    "initEnv": "node ./setup/initializeEnv.js"
+    "prepare": "[ \"$NODE_ENV\" != \"production\" ] && husky install || exit 0"
   },
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"
