@@ -29,7 +29,7 @@ ENV NODE_ENV=production
 RUN touch /var/log/cron.log
 
 # Copiar arquivo de crontab
-COPY ./docker/generate-cert /etc/cron.d/generate-cert
+COPY ./docker/cron/generate-cert /etc/cron.d/generate-cert
 
 # Configurar permissões no arquivo de cron
 RUN chmod 0644 /etc/cron.d/generate-cert
