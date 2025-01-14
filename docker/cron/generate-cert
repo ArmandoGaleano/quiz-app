@@ -1,0 +1,5 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# Executa o comando npm run generate-cert:prod a cada 12 horas
+0 */12 * * * cd /quiz-app && npm run generate-cert:prod >> /var/log/cron-generate-cert.log 2>&1

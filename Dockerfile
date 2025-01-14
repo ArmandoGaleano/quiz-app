@@ -25,5 +25,17 @@ USER nodeuser
 # Define a variável de ambiente NODE_ENV como production
 ENV NODE_ENV=production
 
+# Criar arquivo de log para cron
+RUN touch /var/log/cron.log
+
+# Copiar arquivo de crontab
+COPY ./docker/generate-cert /etc/cron.d/generate-cert
+
+# Configurar permissões no arquivo de cron
+RUN chmod 0644 /etc/cron.d/generate-cert
+
+# Registrar o cron job no crontab
+RUN crontab /etc/cron.d/generate-cert
+
 # Executa o Node.js com o script especificado
-ENTRYPOINT ["sh", "-c", "node ./setup/index.js"]
+CMD ["sh", "-c", "cron && node ./setup/index.js"]
