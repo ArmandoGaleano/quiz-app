@@ -10,7 +10,7 @@
     "build": "node ./setup/initializeEnv.js && npx webpack --config webpack.config.js",
     "initEnv": "node ./setup/initializeEnv.js",
     "generate-cert:dev": "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout docker/certs/key.pem -out docker/certs/cert.pem -subj \"/C=BR/ST=Sao Paulo/L=Sao Paulo/O=Quiz/OU=Desenvolvimento/CN=localhost\"",
-    "generate-cert:prod": "env --file .env openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout docker/certs/key.pem -out docker/certs/cert.pem -subj \"/C=BR/ST=Sao Paulo/L=Sao Paulo/O=Quiz/OU=Producao/CN=$SERVER_HOST\"",
+    "generate-cert:prod": "export $(grep -vE '^\\s*#|^\\s*$' .env | xargs) openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout docker/certs/key.pem -out docker/certs/cert.pem -subj \"/C=BR/ST=Sao Paulo/L=Sao Paulo/O=Quiz/OU=Producao/CN=$SERVER_HOST\"",
     "prisma:migrate-check": "npx prisma migrate status --schema=./prisma/schema --experimental",
     "prisma:migrate": "npx prisma migrate dev --name 'auto_migration' --skip-generate",
     "prisma:generate": "npx prisma generate",
