@@ -81,7 +81,6 @@ services:
     depends_on:
       - node_app # Garante que o Node.js estará disponível antes do NGINX iniciar
     networks:
-      - frontend_network # Rede compartilhada com o Certbot
       - backend_network # Rede compartilhada com o Node.js
     logging:
       driver: 'json-file' # Configuração de logs
@@ -99,8 +98,6 @@ services:
 
 # Configuração das Redes
 networks:
-  frontend_network:
-    driver: bridge # Rede para comunicação entre o NGINX e o Certbot
   backend_network:
     driver: bridge # Rede para comunicação entre o Node.js e o MySQL
 
