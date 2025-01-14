@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "node ./setup/initializeEnv.js && npm run generate-cert:dev && docker compose -f docker-compose.dev.yml up --build",
-    "start": "docker compose -f docker-compose.prod.yml up --build",
+    "start": "node ./setup/initializeEnv.js && npm run generate-cert:prod && docker compose -f docker-compose.prod.yml up --build",
     "build": "node ./setup/initializeEnv.js && npx webpack --config webpack.config.js",
     "initEnv": "node ./setup/initializeEnv.js",
     "generate-cert:dev": "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout docker/certs/key.pem -out docker/certs/cert.pem -subj \"/C=BR/ST=Sao Paulo/L=Sao Paulo/O=Quiz/OU=Desenvolvimento/CN=localhost\"",
