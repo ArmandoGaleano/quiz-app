@@ -95,7 +95,7 @@ export const productionTasks = new Listr([
     title: 'Inicializando o servidor em produção',
     task: async () => {
       console.log('🚀 Inicializando o servidor em produção...');
-      await execa('node', ['../build/server.cjs'], {
+      await execa('node', ['./build/server.cjs'], {
         stdio: 'inherit',
         cwd: root,
         env: process.env,
