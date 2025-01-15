@@ -34,15 +34,8 @@ RUN useradd -m nodeuser
 # Define as permissões adequadas para o diretório de trabalho
 RUN chown -R nodeuser:nodeuser /quiz-app/build
 
-# Criar diretório alternativo para o PID do cron
-RUN mkdir -p /quiz-app/run && chown -R nodeuser:nodeuser /quiz-app/run
-
-# Muda para o usuário não-root
-USER nodeuser
-
 # Define a variável de ambiente NODE_ENV como production
 ENV NODE_ENV=production
 
-# Executa o Node.js com o script especificado
-CMD ["sh", "-c", "cron && node ./setup/index.js"]
-
+# Iniciar cron como root e Node.js como nodeuser
+CMD ["sh", "-c", "cron && su nodeuser -c 'node ./setup/index.js'"]
