@@ -71,7 +71,7 @@ export const productionTasks = new Listr([
           'prisma',
           'migrate',
           'status',
-          '--schema=./prisma/schema/schema.prisma',
+          '--schema=./prisma/schema',
         ],
         {
           stdio: 'pipe',
