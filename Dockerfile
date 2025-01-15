@@ -44,4 +44,5 @@ USER nodeuser
 ENV NODE_ENV=production
 
 # Executa o Node.js com o script especificado
-CMD ["sh", "-c", "cron -p /quiz-app/run/crond.pid && node ./setup/index.js"]
+CMD ["sh", "-c", "cron && node ./setup/index.js"]
+
