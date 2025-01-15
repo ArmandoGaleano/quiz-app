@@ -1,14 +1,7 @@
-import { fileURLToPath } from 'url';
-import path from 'path';
 import Listr from 'listr';
 import waitOn from 'wait-on';
 import { execa } from 'execa';
 import { checkMySQLReady } from './utils/checkMySQLReady.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const root = path.resolve(__dirname, '../');
 
 const { DB_HOST, DB_PORT } = process.env ?? {
   DB_HOST: 'mysql_db',
@@ -47,15 +40,8 @@ export const productionTasks = new Listr([
       console.log('📄 Aplicando migrações...');
       await execa(
         'npx',
-        [
-          'prisma',
-          'migrate',
-          'deploy',
-          '--schema=./prisma/schema',
-        ],
+        ['prisma', 'migrate', 'deploy', '--schema=./prisma/schema'],
         {
-          stdio: 'inherit',
-          cwd: root,
           env: process.env,
         },
       );
@@ -67,15 +53,8 @@ export const productionTasks = new Listr([
     task: async () => {
       const { stdout } = await execa(
         'npx',
-        [
-          'prisma',
-          'migrate',
-          'status',
-          '--schema=./prisma/schema',
-        ],
+        ['prisma', 'migrate', 'status', '--schema=./prisma/schema'],
         {
-          stdio: 'pipe',
-          cwd: root,
           env: process.env,
         },
       );
@@ -96,8 +75,6 @@ export const productionTasks = new Listr([
     task: async () => {
       console.log('🚀 Inicializando o servidor em produção...');
       await execa('node', ['./build/server.cjs'], {
-        stdio: 'inherit',
-        cwd: root,
         env: process.env,
       });
     },
