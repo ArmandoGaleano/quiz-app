@@ -51,7 +51,7 @@ export const productionTasks = new Listr([
           'prisma',
           'migrate',
           'deploy',
-          '--schema=./prisma/schema/schema.prisma',
+          '--schema=./prisma/schema',
         ],
         {
           stdio: 'inherit',
