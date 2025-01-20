@@ -1,11 +1,11 @@
 import type z from 'zod';
 
-type ZodValidationProps<TResult> = {
+type BaseZodValidationProps<TResult = Record<string, any>> = {
   schema: z.ZodObject<any>;
   data: TResult;
 };
 
-export abstract class ZodValidation<TResult> {
+export abstract class BaseZodValidation<TResult = Record<string, any>> {
   private _schema: z.ZodObject<any>;
   private _data: TResult;
 
@@ -17,10 +17,10 @@ export abstract class ZodValidation<TResult> {
     return this._data;
   }
 
-  constructor(props: ZodValidationProps<TResult>) {
+  constructor(props: BaseZodValidationProps<TResult>) {
     this._schema = props.schema;
     this._data = props.data;
   }
 
-  abstract validate(): TResult | void;
+  abstract validate(): any;
 }

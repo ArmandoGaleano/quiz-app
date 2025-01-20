@@ -1,7 +1,7 @@
-import { QuizEntity } from '../../../core/entities/QuizEntity';
+import { BaseEntityModel } from '../../../core/abstraction/BaseEntityModel';
 
 export class Keyword
-  extends QuizEntity<KeywordModelProps>
+  extends BaseEntityModel<KeywordModelProps>
   implements IKeywordProps
 {
   get id(): string {

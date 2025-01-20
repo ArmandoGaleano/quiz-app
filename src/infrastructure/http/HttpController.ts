@@ -3,11 +3,11 @@ import type { HttpError } from '../../core/errors/http/HttpError';
 import type { HttpResponseControllerProps } from '../../core/@types/http/httpResponseHandler';
 
 interface IHttpController {
-  handle: HttpResponseControllerProps<HttpError>;
+  handler: HttpResponseControllerProps<HttpError>;
 }
 
 export abstract class HttpController implements IHttpController {
-  abstract handle(
+  abstract handler(
     request: FastifyRequest,
     reply: FastifyReply,
     dispatchHttpError: (error: HttpError) => void,

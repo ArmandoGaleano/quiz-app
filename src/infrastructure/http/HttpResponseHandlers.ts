@@ -3,14 +3,13 @@ import type {
   HttpResponseHandleRequestPromiseProps,
   HttpResponseProps,
 } from '../../core/@types/http/httpResponseHandler';
-import type { HttpError } from '../../core/errors/http/HttpError';
+import { HttpError } from '../../core/errors/http/HttpError';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export class HttpResponse<THttpError extends HttpError> {
   private request: FastifyRequest;
   private reply: FastifyReply;
   private controller: HttpResponseControllerProps<THttpError>;
-  private errors: THttpError[] = [];
   private knownErrors: KnownErrorsType<THttpError> = [];
 
   constructor(props: HttpResponseProps<THttpError>) {
@@ -28,7 +27,6 @@ export class HttpResponse<THttpError extends HttpError> {
     reject: (value: HttpResponseHandleRequestPromiseProps) => void,
   ) {
     const dispatchHttpError = (error: THttpError) => {
-      this.errors.push(error);
       reject(error);
     };
 
@@ -62,16 +60,21 @@ export function HttpResponseHandler(
         knownErrors,
         controller,
       }).execute();
-    } catch (error: any) {
-      console.log('Ponta do HTTP');
-      console.error('Erro desconhecido:');
+    } catch (error) {
+      console.error('Ponta do HTTP');
+      console.error('Erro conhecido:');
       console.error(error);
-      if (typeof error?.statusCode === 'number') {
+      if (error instanceof HttpError) {
+        console.log({
+          message: error.message,
+          statusCode: error.statusCode,
+        });
         reply.status(error.statusCode).send({ message: error.message ?? '' });
 
         return;
       }
 
+      console.error('Erro desconhecido:');
       reply.status(500).send({ message: 'Internal server error!' });
     }
   };

@@ -1,9 +1,7 @@
-export type ICreateQuizDTOProps = Omit<
-  QuizRepositoryProps,
-  'id' | 'createdAt' | 'updatedAt'
->;
+export type IQuizDTOProps = QuizRepositoryProps;
 
-export class CreateQuizDTO implements ICreateQuizDTOProps {
+export class QuizDTO implements IQuizDTOProps {
+  readonly id: QuizRepositoryProps['id'];
   readonly slug: QuizRepositoryProps['slug'];
   readonly title: QuizRepositoryProps['title'];
   readonly shortDescription: QuizRepositoryProps['shortDescription'];
@@ -12,8 +10,11 @@ export class CreateQuizDTO implements ICreateQuizDTOProps {
   readonly type: QuizRepositoryProps['type'];
   readonly alternatives: QuizRepositoryProps['alternatives'];
   readonly keywords: QuizRepositoryProps['keywords'];
+  readonly createdAt: QuizRepositoryProps['createdAt'];
+  readonly updatedAt: QuizRepositoryProps['updatedAt'];
 
-  constructor(props: ICreateQuizDTOProps) {
+  constructor(props: IQuizDTOProps) {
+    this.id = props.id;
     this.slug = props.slug;
     this.title = props.title;
     this.shortDescription = props.shortDescription;
@@ -22,5 +23,7 @@ export class CreateQuizDTO implements ICreateQuizDTOProps {
     this.type = props.type;
     this.alternatives = props.alternatives;
     this.keywords = props.keywords;
+    this.createdAt = props.createdAt;
+    this.updatedAt = props.updatedAt;
   }
 }

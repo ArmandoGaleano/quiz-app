@@ -1,17 +1,17 @@
 import type { PrismaClient } from '@prisma/client';
 
-interface RepositoryEntityProps {
+interface BaseRepositoryProps {
   prismaClient: PrismaClient;
 }
 
-export abstract class RepositoryEntity {
+export abstract class BaseRepository {
   private _prisma: PrismaClient;
 
   protected get prisma() {
     return this._prisma;
   }
 
-  constructor({ prismaClient }: RepositoryEntityProps) {
+  constructor({ prismaClient }: BaseRepositoryProps) {
     this._prisma = prismaClient;
   }
 }

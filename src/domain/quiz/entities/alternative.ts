@@ -1,7 +1,7 @@
-import { QuizEntity } from '../../../core/entities/QuizEntity';
+import { BaseEntityModel } from '../../../core/abstraction/BaseEntityModel';
 
 export class Alternative
-  extends QuizEntity<AlternativeModelProps>
+  extends BaseEntityModel<AlternativeModelProps>
   implements IAlternativeProps
 {
   get id(): string {

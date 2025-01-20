@@ -1,10 +1,10 @@
-export type QuizEntityProps = {
+export type BaseQuizProps = {
   id: string;
   createdAt?: Date;
   updatedAt?: Date;
 };
 
-export abstract class QuizEntity<TProps extends QuizEntityProps> {
+export abstract class BaseEntityModel<TProps extends BaseQuizProps> {
   private _id: string;
   private _createdAt: Date;
   private _updatedAt?: Date;

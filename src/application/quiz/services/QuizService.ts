@@ -1,45 +1,33 @@
-import { RepositoryResponse } from '@/core/responses/RepositoryResponse';
-import type { QuizRepository } from '@/infrastructure/persistence/QuizRepository';
-import { QuizRepositoryValidation } from '@/core/validation/zod/quiz/QuizRepositoryValidation';
-import knownErrors from '@/core/errors/services/question';
+import { CreateQuizUseCase } from '../use-cases/CreateQuizUseCase';
+import { GetQuizUseCase } from '../use-cases/GetQuizUseCase';
+import { UpdateQuizUseCase } from '../use-cases/UpdateQuizUseCase';
 
-import type { CreateQuizDTO } from '../dtos/CreateQuizDTO';
+import type { QuizRepository } from '@/infrastructure/persistence/QuizRepository';
+import type { CreateQuizDTO } from '@/application/quiz/dtos/CreateQuizDTO';
+import type { GetQuizDTO } from '../dtos/GetQuizDTO';
+import type { UpdateQuizDTO } from '../dtos/UpdateQuizDTO';
 
 export class QuizService<TQuizRepository extends QuizRepository> {
-  constructor(private quizRepository: TQuizRepository) {}
+  private readonly CreateQuizUseCase: CreateQuizUseCase;
+  private readonly GetQuizUseCase: GetQuizUseCase;
+  private readonly UpdateQuizUseCase: UpdateQuizUseCase;
 
-  async createQuiz(props: CreateQuizDTO) {
-    try {
-      const validatedData = new QuizRepositoryValidation(props).validate();
+  constructor(private quizRepository: TQuizRepository) {
+    this.CreateQuizUseCase = new CreateQuizUseCase(quizRepository);
+    this.GetQuizUseCase = new GetQuizUseCase(quizRepository);
+    this.UpdateQuizUseCase = new UpdateQuizUseCase(quizRepository);
+  }
 
-      const response = await this.quizRepository.create(validatedData);
+  async createQuiz(dto: CreateQuizDTO) {
+    return this.CreateQuizUseCase.execute(dto);
+  }
 
-      if (response.success) {
-        console.log('Quiz criado com sucesso!');
-        return new RepositoryResponse({ statusCode: 201 });
-      }
+  async getQuiz(dto: GetQuizDTO) {
+    return this.GetQuizUseCase.execute(dto);
+  }
 
-      console.log('Erro ao criar quiz:');
-      return new RepositoryResponse({ statusCode: 400 });
-    } catch (error: any) {
-      const isKnownError = Object.values(knownErrors).some(
-        (errorClass) => error instanceof errorClass,
-      );
-
-      if (isKnownError) {
-        console.error('Houve um erro conhecido:');
-        console.error(error);
-
-        return new RepositoryResponse({
-          statusCode: 400,
-          message: error.message,
-        });
-      }
-
-      console.error('Erro desconhecido:');
-      console.error(error);
-      return new RepositoryResponse({ statusCode: 500 });
-    }
+  async updateQuiz(dto: UpdateQuizDTO) {
+    return this.UpdateQuizUseCase.execute(dto);
   }
 
   async getAll() {

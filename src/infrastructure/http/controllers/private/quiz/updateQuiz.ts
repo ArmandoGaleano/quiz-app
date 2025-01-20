@@ -1,20 +1,24 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import { HttpController } from '@/infrastructure/http/HttpController';
-import { QuizService } from '@/application/quiz/services/QuizService';
 import { QuizRepository } from '@/infrastructure/persistence/QuizRepository';
+import { QuizService } from '@/application/quiz/services/QuizService';
 
-import { HttpError } from '@/core/errors/http/HttpError';
 import { InternalServerError } from '@/core/errors/http/internal-server-error';
 import { InvalidRequestBodyError } from '@/core/errors/http/invalid-request-body-error';
-import type { CreateQuizDTO } from '@/application/quiz/dtos/CreateQuizDTO';
+import { UpdateQuizDTO } from '@/application/quiz/dtos/UpdateQuizDTO';
+import { ConflictError } from '@/core/errors/http/conflict';
+import type { HttpError } from '@/core/errors/http/HttpError';
 
-export class CreateNewQuizController extends HttpController {
-  public async handle(
+import type { IUpdateQuizDTOProps } from '@/application/quiz/dtos/UpdateQuizDTO';
+
+export class UpdateQuizController extends HttpController {
+  public async handler(
     request: FastifyRequest,
     reply: FastifyReply,
     dispatchHttpError: (error: HttpError) => void,
   ) {
     const { body } = request;
+
     if (typeof body !== 'object') {
       dispatchHttpError(new InvalidRequestBodyError());
 
@@ -25,27 +29,33 @@ export class CreateNewQuizController extends HttpController {
 
     const quizService = new QuizService(quizRepository);
 
-    const { statusCode, success, message, data } = await quizService.createQuiz(
-      body as CreateQuizDTO,
+    const { statusCode, success, message, data } = await quizService.updateQuiz(
+      new UpdateQuizDTO(body as IUpdateQuizDTOProps),
     );
 
     if (success) {
       console.info({ data });
-      reply.status(statusCode).send({ message: 'Quiz criado com sucesso!' });
+      reply
+        .status(statusCode)
+        .send({ message: 'Quiz atualizado com sucesso!', data });
 
       return;
     }
 
     if (statusCode === 400) {
-      dispatchHttpError(
-        new HttpError({
-          statusCode: 400,
-          ...(typeof message === 'string' ? { message } : {}),
-        }),
-      );
+      dispatchHttpError(new InvalidRequestBodyError(message));
+
+      return;
     }
 
-    dispatchHttpError(new InternalServerError('Erro ao criar quiz!'));
+    if (statusCode === 409) {
+      dispatchHttpError(new ConflictError(message));
+
+      return;
+    }
+
+    console.error({ statusCode, success, message, data });
+    dispatchHttpError(new InternalServerError('Erro ao atualizar o quiz!'));
   }
   public async getTeste(_request: FastifyRequest, reply: FastifyReply) {
     try {

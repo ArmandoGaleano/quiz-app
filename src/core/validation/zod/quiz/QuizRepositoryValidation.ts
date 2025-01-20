@@ -1,10 +1,9 @@
-import type { QuizRepositoryProps } from '../../../@types/repositories/QuizRepository';
-import { ZodValidation } from '../../../entities/ZodValidation';
-import { QuizSchemaError } from '../../../errors/services/question/quiz-schema-error';
+import { BaseZodValidation } from '../../../abstraction/BaseZodValidation';
+import { QuizSchemaError } from '../../../errors/services/QuizService/quiz-schema-error';
 import { questionSchema } from './schema/question';
 import z from 'zod';
 
-export class QuizRepositoryValidation extends ZodValidation<QuizRepositoryProps> {
+export class QuizRepositoryValidation extends BaseZodValidation<QuizRepositoryProps> {
   constructor(data: QuizRepositoryProps) {
     super({
       schema: questionSchema,
@@ -21,7 +20,7 @@ export class QuizRepositoryValidation extends ZodValidation<QuizRepositoryProps>
         throw new QuizSchemaError(error.message);
       }
 
-      return undefined as unknown as QuizRepositoryProps;
+      return undefined;
     }
   }
 }
