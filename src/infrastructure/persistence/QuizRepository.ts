@@ -7,6 +7,7 @@ import type {
   UpdateQuizDTO,
   IUpdateQuizDTOProps,
 } from '@/application/quiz/dtos/UpdateQuizDTO';
+import type { DeleteQuizDTO } from '@/application/quiz/dtos/DeleteQuizDTO';
 
 type GetWhereTypeProps = Optional<
   Omit<IQuizDTOProps, 'alternatives' | 'keywords'>,
@@ -130,8 +131,6 @@ export class QuizRepository extends BaseRepository {
 
   public async update(dto: UpdateQuizDTO) {
     try {
-      console.log({ dto });
-
       const propsToUpdate = Object.entries(dto).reduce<UpdateQuizTypeProps>(
         (acc, [key, value]) => {
           if (value === undefined || key === 'id') {
@@ -190,14 +189,56 @@ export class QuizRepository extends BaseRepository {
         },
       });
 
-      console.log({ data });
-
       return new RepositoryResponse<QuizRepositoryProps>({
         statusCode: 200,
         data,
       });
     } catch (error) {
       console.error('Quiz Repository Error [update]:');
+      console.error(error);
+
+      return new RepositoryResponse({ statusCode: 500 });
+    }
+  }
+
+  public async delete(dto: DeleteQuizDTO) {
+    try {
+      // Primeiro, remover a relação entre perguntas e palavras-chave
+      await this.prisma.$transaction(async (prisma) => {
+        // Desvincular a relação na tabela intermediária
+        await prisma.question.update({
+          where: { id: dto.id },
+          data: { keywords: { disconnect: [] } }, // Remove todas as associações
+        });
+
+        // Agora deletar as alternativas associadas
+        await prisma.alternative.deleteMany({
+          where: { questionId: dto.id },
+        });
+
+        // Deletar a pergunta
+        await prisma.question.delete({
+          where: { id: dto.id },
+        });
+
+        // Verificar se as keywords ficaram sem perguntas associadas
+        const orphanKeywords = await prisma.keyword.findMany({
+          where: { questions: { none: {} } }, // Keywords sem perguntas associadas
+        });
+
+        if (orphanKeywords.length > 0) {
+          const orphanKeywordIds = orphanKeywords.map((k) => k.id);
+          await prisma.keyword.deleteMany({
+            where: { id: { in: orphanKeywordIds } },
+          });
+        }
+      });
+
+      return new RepositoryResponse({
+        statusCode: 200,
+      });
+    } catch (error) {
+      console.error('Quiz Repository Error [delete]:');
       console.error(error);
 
       return new RepositoryResponse({ statusCode: 500 });

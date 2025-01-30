@@ -1,4 +1,4 @@
-import { BaseEntityModel } from '../../../core/abstraction/BaseEntityModel';
+import { BaseEntityModel } from '@/core/abstraction/BaseEntityModel';
 
 export class Keyword
   extends BaseEntityModel<KeywordModelProps>

@@ -5,13 +5,12 @@ import { QuizService } from '@/application/quiz/services/QuizService';
 
 import { InternalServerError } from '@/core/errors/http/internal-server-error';
 import { InvalidRequestBodyError } from '@/core/errors/http/invalid-request-body-error';
-import { UpdateQuizDTO } from '@/application/quiz/dtos/UpdateQuizDTO';
-import { ConflictError } from '@/core/errors/http/conflict';
+import { DeleteQuizDTO } from '@/application/quiz/dtos/DeleteQuizDTO';
 import type { HttpError } from '@/core/errors/http/HttpError';
 
-import type { IUpdateQuizDTOProps } from '@/application/quiz/dtos/UpdateQuizDTO';
+import type { IDeleteQuizDTOProps } from '@/application/quiz/dtos/DeleteQuizDTO';
 
-export class UpdateQuizController extends HttpController {
+export class DeleteQuizController extends HttpController {
   public async handler(
     request: FastifyRequest,
     reply: FastifyReply,
@@ -29,15 +28,12 @@ export class UpdateQuizController extends HttpController {
 
     const quizService = new QuizService(quizRepository);
 
-    const { statusCode, success, message, data } = await quizService.updateQuiz(
-      new UpdateQuizDTO(body as IUpdateQuizDTOProps),
+    const { statusCode, success, message } = await quizService.deleteQuiz(
+      new DeleteQuizDTO(body as IDeleteQuizDTOProps),
     );
 
     if (success) {
-      console.info({ data });
-      reply
-        .status(statusCode)
-        .send({ message: 'Quiz atualizado com sucesso!', data });
+      reply.status(statusCode).send({ message: 'Quiz deletado com sucesso!' });
 
       return;
     }
@@ -48,13 +44,7 @@ export class UpdateQuizController extends HttpController {
       return;
     }
 
-    if (statusCode === 409) {
-      dispatchHttpError(new ConflictError(message));
-
-      return;
-    }
-
-    console.error({ statusCode, success, message, data });
-    dispatchHttpError(new InternalServerError('Erro ao atualizar o quiz!'));
+    console.error({ statusCode, success, message });
+    dispatchHttpError(new InternalServerError('Erro ao deletar o quiz!'));
   }
 }

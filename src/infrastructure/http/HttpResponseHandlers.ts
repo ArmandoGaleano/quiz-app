@@ -65,7 +65,7 @@ export function HttpResponseHandler(
       console.error('Erro conhecido:');
       console.error(error);
       if (error instanceof HttpError) {
-        console.log({
+        console.error({
           message: error.message,
           statusCode: error.statusCode,
         });

@@ -1,4 +1,4 @@
-import { BaseEntityModel } from '../../../core/abstraction/BaseEntityModel';
+import { BaseEntityModel } from '@/core/abstraction/BaseEntityModel';
 
 export class Alternative
   extends BaseEntityModel<AlternativeModelProps>
