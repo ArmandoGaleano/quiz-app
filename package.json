@@ -16,7 +16,6 @@
     "prisma:generate": "npx prisma generate",
     "eslint:lint": "npx eslint . --fix",
     "prettier:lint": "npx prettier --write './src/**/*.{js,jsx,ts,tsx}'",
-    "prepare": "husky",
     "test": "npm run eslint:lint && npm run prettier:lint"
   },
   "lint-staged": {
