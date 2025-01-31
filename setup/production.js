@@ -35,6 +35,21 @@ export const productionTasks = new Listr([
     },
   },
   {
+    title: 'Gerando Prisma Client',
+    task: async () => {
+      console.log('🔄 Gerando Prisma Client...');
+      try {
+        await execa('npx', ['prisma', 'generate'], {
+          env: process.env,
+        });
+        console.log('✅ Prisma Client gerado com sucesso.');
+      } catch (err) {
+        console.error('❌ Erro ao gerar Prisma Client:', err);
+        process.exit(1);
+      }
+    },
+  },
+  {
     title: 'Aplicando migrações no banco de produção',
     task: async () => {
       console.log('📄 Aplicando migrações...');
