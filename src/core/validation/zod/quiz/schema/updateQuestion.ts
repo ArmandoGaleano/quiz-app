@@ -4,12 +4,12 @@ import { QuestionType } from './question';
 
 export const updateQuestionSchema = z.object({
   id: z.string().uuid(),
-  slug: z.string().min(1),
-  title: z.string().min(1),
-  shortDescription: z.string().default('Sem descrição'),
-  questionStatement: z.string().min(1),
-  active: z.boolean().default(false),
-  type: z.nativeEnum(QuestionType),
+  slug: z.string().min(1).optional(),
+  title: z.string().min(1).optional(),
+  shortDescription: z.string().default('Sem descrição').optional(),
+  questionStatement: z.string().min(1).optional(),
+  active: z.boolean().optional(),
+  type: z.nativeEnum(QuestionType).optional(),
   alternatives: z
     .array(
       z.object({
@@ -17,6 +17,6 @@ export const updateQuestionSchema = z.object({
         isCorrect: z.boolean().default(false),
       }),
     )
-    .default([]),
-  keywords: z.array(keywordSchema).default([]),
+    .optional(),
+  keywords: z.array(keywordSchema).optional(),
 });

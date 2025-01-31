@@ -14,6 +14,7 @@
     "prisma:migrate-check": "npx prisma migrate status --schema=./prisma/schema --experimental",
     "prisma:migrate": "npx prisma migrate dev --name 'auto_migration' --skip-generate",
     "prisma:generate": "npx prisma generate",
+    "docker-compose:down": "docker compose -f docker-compose.prod.yml down",
     "eslint:lint": "npx eslint . --fix",
     "prettier:lint": "npx prettier --write './src/**/*.{js,jsx,ts,tsx}'",
     "test": "npm run eslint:lint && npm run prettier:lint"
